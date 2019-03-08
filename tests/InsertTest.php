@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Koriym\Insert;
 
+use function dirname;
 use PHPUnit\Framework\TestCase;
+use Swoole\Coroutine\MySQL;
+use Swoole\Event;
 
 class InsertTest extends TestCase
 {
@@ -15,12 +18,17 @@ class InsertTest extends TestCase
 
     protected function setUp() : void
     {
-        $this->insert = new Insert;
     }
 
-    public function testIsInstanceOfInsert() : void
+    public function testInsertInvoke() : void
     {
-        $actual = $this->insert;
-        $this->assertInstanceOf(Insert::class, $actual);
+        go(function () : void {
+            $mysql = new MySQL;
+            $db = require dirname(__DIR__) . '/db.php';
+            $mysql->connect($db);
+            $insert = new Insert($mysql);
+            ($insert)(['id', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+        });
+        Event::wait();
     }
 }
